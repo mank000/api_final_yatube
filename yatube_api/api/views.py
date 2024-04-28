@@ -9,7 +9,6 @@ from rest_framework.response import Response
 
 from posts.models import (
     Post,
-    Comment,
     Follow,
     Group
 )
@@ -71,7 +70,9 @@ class FollowListCreate(viewsets.ModelViewSet):
         queryset = Follow.objects.filter(user=self.request.user)
         search_param = self.request.query_params.get('search')
         if search_param:
-            queryset = queryset.filter(following__username__icontains=search_param)
+            queryset = queryset.filter(
+                following__username__icontains=search_param
+            )
         return queryset
 
     def perform_create(self, serializer):
