@@ -6,7 +6,7 @@ from posts.models import (
     Comment,
     Post,
     Follow,
-    Group
+    Group,
 )
 
 User = get_user_model()
