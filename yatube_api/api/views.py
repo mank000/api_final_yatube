@@ -1,10 +1,6 @@
-from django.contrib.auth.models import User
-from rest_framework import viewsets
-from rest_framework import permissions
-from rest_framework.exceptions import ValidationError
+from rest_framework import viewsets, filters, permissions
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.response import Response
 
 
 from posts.models import (
@@ -61,29 +57,15 @@ class CommentsViewSet(viewsets.ModelViewSet):
 
 
 class FollowListCreate(viewsets.ModelViewSet):
+    """Вьюсет для подписчиков."""
 
-    queryset = Follow.objects.all()
     serializer_class = FollowSerializer
     permission_classes = (permissions.IsAuthenticated, )
+    filter_backends = (filters.SearchFilter, )
+    search_fields = ('following__username', )
 
     def get_queryset(self):
-        queryset = Follow.objects.filter(user=self.request.user)
-        search_param = self.request.query_params.get('search')
-        if search_param:
-            queryset = queryset.filter(
-                following__username__icontains=search_param
-            )
-        return queryset
+        return self.request.user.user.all()
 
     def perform_create(self, serializer):
-        following_username = self.request.data.get('following')
-        if self.request.user.username == following_username:
-            raise ValidationError('Невозможно подписаться на себя!')
-
-        following_user = get_object_or_404(User, username=following_username)
-        serializer.save(user=self.request.user, following=following_user)
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        serializer.save(user=self.request.user)
