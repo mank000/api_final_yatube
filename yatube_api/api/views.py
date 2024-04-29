@@ -4,7 +4,6 @@ from rest_framework.pagination import LimitOffsetPagination
 
 from posts.models import (
     Post,
-    Follow,
     Group
 )
 
