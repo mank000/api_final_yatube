@@ -12,7 +12,7 @@ class PostSerializer(serializers.ModelSerializer):
     author = SlugRelatedField(slug_field='username', read_only=True)
 
     class Meta:
-        fields = '__all__'
+        fields = ('id', 'text', 'pub_date', 'author', 'image', 'group')
         model = Post
 
 
@@ -39,9 +39,9 @@ class FollowSerializer(serializers.ModelSerializer):
         default=serializers.CurrentUserDefault()
     )
 
-    def validate(self, data):
+    def validate_following(self, data):
         user = self.context['request'].user
-        if data['following'] == user:
+        if data == user:
             raise serializers.ValidationError("На себя нельзя подписаться!")
         return data
 
